@@ -58,7 +58,6 @@ class AddressBook:
         return upcoming_birthdays
 
     def _calculate_greeting_date(self, birthday, today):
-        # Якщо день народження вже був цього року, використовується дата наступного року
         if birthday < today:
             birthday = birthday.replace(year=today.year + 1)
         return birthday + timedelta(days=2)

@@ -51,8 +51,9 @@ class AddressBook:
         for contact in self.contacts:
             if contact.birthday:
                 birthday_this_year = contact.birthday.value.replace(year=today.year)
-                if today <= birthday_this_year <= next_week:
-                    upcoming_birthdays.append(contact)
+                greeting_date = self._calculate_greeting_date(birthday_this_year, today)
+                if today <= greeting_date <= next_week:
+                    upcoming_birthdays.append((contact, greeting_date))
 
         return upcoming_birthdays
 

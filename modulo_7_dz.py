@@ -57,6 +57,12 @@ class AddressBook:
 
         return upcoming_birthdays
 
+    def _calculate_greeting_date(self, birthday, today):
+        # Якщо день народження вже був цього року, використовується дата наступного року
+        if birthday < today:
+            birthday = birthday.replace(year=today.year + 1)
+        return birthday + timedelta(days=2)
+
 def input_error(func):
     def wrapper(*args, **kwargs):
         try:
@@ -182,7 +188,7 @@ def show_birthday(args, book):
 def show_upcoming_birthdays(book):
     upcoming_birthdays = book.get_upcoming_birthdays()
     if upcoming_birthdays:
-        return "Upcoming birthdays:\n" + "\n".join([f"{contact.name.value}: {contact.birthday.value.strftime('%d.%m.%Y')}" for contact in upcoming_birthdays])
+        return "Upcoming birthdays:\n" + "\n".join([f"{contact.name.value}: {greeting_date.strftime('%d.%m.%Y')}" for contact, greeting_date in upcoming_birthdays])
     else:
         return "No upcoming birthdays."
 

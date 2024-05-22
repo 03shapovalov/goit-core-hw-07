@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 class Phone:
     def __init__(self, value):
@@ -14,7 +14,7 @@ class Name:
 class Birthday:
     def __init__(self, value):
         try:
-            self.value = datetime.strptime(value, '%d.%m.%Y')
+            self.value = datetime.strptime(value, '%d.%m.%Y').date()
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
 
@@ -44,23 +44,34 @@ class AddressBook:
         return None
 
     def get_upcoming_birthdays(self):
-        today = datetime.today()
+        today = date.today()
         next_week = today + timedelta(days=7)
         upcoming_birthdays = []
 
         for contact in self.contacts:
             if contact.birthday:
                 birthday_this_year = contact.birthday.value.replace(year=today.year)
-                greeting_date = self._calculate_greeting_date(birthday_this_year, today)
-                if today <= greeting_date <= next_week:
-                    upcoming_birthdays.append((contact, greeting_date))
+                if birthday_this_year < today:
+                    birthday_this_year = birthday_this_year.replace(year=today.year + 1)
+                adjusted_birthday = self._calculate_greeting_date(birthday_this_year)
+                if today <= adjusted_birthday <= next_week:
+                    upcoming_birthdays.append((contact, adjusted_birthday))
 
         return upcoming_birthdays
 
-    def _calculate_greeting_date(self, birthday, today):
-        if birthday < today:
-            birthday = birthday.replace(year=today.year + 1)
-        return birthday + timedelta(days=2)
+    def _calculate_greeting_date(self, birthday):
+        return adjust_for_weekend(birthday)
+
+def find_next_weekday(start_date, weekday):
+    days_ahead = weekday - start_date.weekday()
+    if days_ahead <= 0:
+        days_ahead += 7
+    return start_date + timedelta(days=days_ahead)
+
+def adjust_for_weekend(birthday):
+    if birthday.weekday() >= 5:  
+        return find_next_weekday(birthday, 0) 
+    return birthday
 
 def input_error(func):
     def wrapper(*args, **kwargs):
@@ -192,4 +203,4 @@ def show_upcoming_birthdays(book):
         return "No upcoming birthdays."
 
 if __name__ == "__main__":
-    main() 
+    main()
